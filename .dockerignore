@@ -1,0 +1,59 @@
+target/
+.mvn/
+mvnw
+mvnw.cmd
+*.iml
+.idea/
+.vscode/
+.env
+*.log
+version: '3.8'
+
+services:
+  mysql-pagamentos:
+    image: mysql:8.0
+    container_name: mysql-pagamentos
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secure_password_123
+      MYSQL_DATABASE: alurafood-pagamento
+      MYSQL_USER: pagamentos_user
+      MYSQL_PASSWORD: pagamentos_pass_123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - pagamentos-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secure_password_123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pagamentos-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pagamentos-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-pagamentos:3306/alurafood-pagamento?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: pagamentos_user
+      SPRING_DATASOURCE_PASSWORD: pagamentos_pass_123
+    depends_on:
+      mysql-pagamentos:
+        condition: service_healthy
+    networks:
+      - pagamentos-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  pagamentos-network:
+    driver: bridge
+
