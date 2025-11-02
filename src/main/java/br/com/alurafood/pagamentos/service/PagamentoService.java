@@ -6,7 +6,6 @@ import br.com.alurafood.pagamentos.model.Pagamento;
 import br.com.alurafood.pagamentos.model.Status;
 import br.com.alurafood.pagamentos.repository.PagamentoRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,12 +18,12 @@ public class PagamentoService {
 
     private final PagamentoRepository repository;
 
-    PagamentoService(PagamentoRepository repository){
+    private final ModelMapper modelMapper;
+
+    PagamentoService(PagamentoRepository repository,  ModelMapper modelMapper){
         this.repository = repository;
+        this.modelMapper = modelMapper;
     }
-
-    private ModelMapper modelMapper;
-
 
     public Page<PagamentoDto> obterTodos(Pageable paginacao) {
         return repository
@@ -32,14 +31,12 @@ public class PagamentoService {
         .map(p -> modelMapper.map(p, PagamentoDto.class));
     }
 
-
     public PagamentoDto obterPorId(Long id) {
         Pagamento pagamento = repository.findById(id)
         .orElseThrow(EntityNotFoundException::new);
 
         return modelMapper.map(pagamento, PagamentoDto.class);
     }
-
 
     public PagamentoDto criarPagamento(PagamentoDto dto) {
         Pagamento pagamento = modelMapper.map(dto, Pagamento.class);
