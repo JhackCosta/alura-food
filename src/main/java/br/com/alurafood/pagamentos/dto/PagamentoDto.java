@@ -1,4 +1,4 @@
-package br.com.alurafood.pagamentos.DTO;
+package br.com.alurafood.pagamentos.dto;
 
 import br.com.alurafood.pagamentos.model.Status;
 import lombok.Getter;
